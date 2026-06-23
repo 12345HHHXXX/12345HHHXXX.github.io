@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>线程创建方式对比 - Java作业</title><meta name="author" content="黄盛辉"><meta name="description" content="Java作业 - Thread子类、Runnable接口、Callable接口三种线程创建方式的区别"><link rel="shortcut icon" href="/img/favicon.png"><link rel="stylesheet" href="/css/index.css?v=5.5.5"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;500;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/css/custom.css"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/hero-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Java作业</span></a><a class="nav-page-title" href="/"><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span> 返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">六、线程创建方式对比</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time datetime="2026-06-23">2026-06-23</time></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2>题目描述</h2>
+<p>比较三种线程创建方式的区别：</p>
+<ol>
+<li>继承Thread类</li>
+<li>实现Runnable接口</li>
+<li>实现Callable接口（带返回值）</li>
+</ol>
+
+<h2>核心区别对比</h2>
+<table>
+<thead>
+<tr><th>特性</th><th>Thread子类</th><th>Runnable接口</th><th>Callable接口</th></tr>
+</thead>
+<tbody>
+<tr><td>继承限制</td><td>受限于Java单继承</td><td>可继承其他类</td><td>可继承其他类</td></tr>
+<tr><td>代码复用</td><td>较差</td><td>较好</td><td>较好</td></tr>
+<tr><td>面向对象设计</td><td>较差</td><td>较好</td><td>较好</td></tr>
+<tr><td>扩展性</td><td>受限</td><td>灵活</td><td>灵活</td></tr>
+<tr><td>推荐场景</td><td>简单场景、一次性任务</td><td>通用场景、可复用逻辑</td><td>需要返回值的场景</td></tr>
+</tbody>
+</table>
+
+<h2>方式一：继承Thread类</h2>
+<pre><code class="language-java">public class MyThread extends Thread {
+    private String threadName;
+    
+    public MyThread(String threadName) {
+        this.threadName = threadName;
+    }
+    
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 5; i++) {
+            System.out.println(threadName + &quot; 执行第 &quot; + i + &quot; 次&quot;);
+            try { Thread.sleep(100); } 
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+        System.out.println(threadName + &quot; 执行完毕&quot;);
+    }
+    
+    public static void main(String[] args) {
+        MyThread t1 = new MyThread(&quot;Thread-A&quot;);
+        MyThread t2 = new MyThread(&quot;Thread-B&quot;);
+        t1.start();
+        t2.start();
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>Thread-A 执行第 1 次
+Thread-B 执行第 1 次
+Thread-A 执行第 2 次
+Thread-B 执行第 2 次
+Thread-A 执行第 3 次
+Thread-B 执行第 3 次
+Thread-A 执行第 4 次
+Thread-B 执行第 4 次
+Thread-A 执行第 5 次
+Thread-B 执行第 5 次
+Thread-A 执行完毕
+Thread-B 执行完毕
+</code></pre>
+
+<h2>方式二：实现Runnable接口</h2>
+<pre><code class="language-java">public class MyRunnable implements Runnable {
+    private String taskName;
+    
+    public MyRunnable(String taskName) {
+        this.taskName = taskName;
+    }
+    
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 5; i++) {
+            System.out.println(taskName + &quot; 执行第 &quot; + i + &quot; 次&quot;);
+            try { Thread.sleep(100); } 
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+        System.out.println(taskName + &quot; 执行完毕&quot;);
+    }
+    
+    public static void main(String[] args) {
+        Thread t1 = new Thread(new MyRunnable(&quot;Runnable-A&quot;));
+        Thread t2 = new Thread(new MyRunnable(&quot;Runnable-B&quot;));
+        t1.start();
+        t2.start();
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>Runnable-A 执行第 1 次
+Runnable-B 执行第 1 次
+Runnable-A 执行第 2 次
+Runnable-B 执行第 2 次
+Runnable-A 执行第 3 次
+Runnable-B 执行第 3 次
+Runnable-A 执行第 4 次
+Runnable-B 执行第 4 次
+Runnable-A 执行第 5 次
+Runnable-B 执行第 5 次
+Runnable-A 执行完毕
+Runnable-B 执行完毕
+</code></pre>
+
+<h2>方式三：实现Callable接口（带返回值）</h2>
+<pre><code class="language-java">import java.util.concurrent.*;
+
+public class MyCallable implements Callable&lt;Integer&gt; {
+    private String taskName;
+    
+    public MyCallable(String taskName) {
+        this.taskName = taskName;
+    }
+    
+    @Override
+    public Integer call() throws Exception {
+        int sum = 0;
+        for (int i = 1; i &lt;= 5; i++) {
+            sum += i;
+            System.out.println(taskName + &quot; 累加: &quot; + i + &quot;, 当前和: &quot; + sum);
+            Thread.sleep(100);
+        }
+        return sum;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        
+        Future&lt;Integer&gt; f1 = executor.submit(new MyCallable(&quot;Callable-A&quot;));
+        Future&lt;Integer&gt; f2 = executor.submit(new MyCallable(&quot;Callable-B&quot;));
+        
+        System.out.println(&quot;\nCallable-A 返回结果: &quot; + f1.get());
+        System.out.println(&quot;Callable-B 返回结果: &quot; + f2.get());
+        
+        executor.shutdown();
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>Callable-A 累加: 1, 当前和: 1
+Callable-B 累加: 1, 当前和: 1
+Callable-A 累加: 2, 当前和: 3
+Callable-B 累加: 2, 当前和: 3
+Callable-A 累加: 3, 当前和: 6
+Callable-B 累加: 3, 当前和: 6
+Callable-A 累加: 4, 当前和: 10
+Callable-B 累加: 4, 当前和: 10
+Callable-A 累加: 5, 当前和: 15
+Callable-B 累加: 5, 当前和: 15
+
+Callable-A 返回结果: 15
+Callable-B 返回结果: 15
+</code></pre>
+
+<h2>三种方式对比总结</h2>
+<table>
+<thead>
+<tr><th>特性</th><th>Thread子类</th><th>Runnable接口</th><th>Callable接口</th></tr>
+</thead>
+<tbody>
+<tr><td>返回值</td><td>无</td><td>无</td><td>有（Future获取）</td></tr>
+<tr><td>异常处理</td><td>只能捕获</td><td>只能捕获</td><td>可以抛出</td></tr>
+<tr><td>继承限制</td><td>有（单继承）</td><td>无</td><td>无</td></tr>
+<tr><td>代码复用</td><td>差</td><td>好</td><td>好</td></tr>
+<tr><td>适用场景</td><td>简单独立任务</td><td>通用场景</td><td>需要返回值的任务</td></tr>
+<tr><td>推荐度</td><td>低</td><td>高</td><td>中（需要返回值时）</td></tr>
+</tbody>
+</table></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="author-info-name">Java作业</div><div class="author-info-description">记录Java学习作业和代码示例</div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-list"></i><span>作业导航</span></div><div class="announcement_content"><a href="/2026/06/11/prime-numbers/">1. 素数判断</a><br/><a href="/2026/06/11/enum-usage/">2. 枚举类型应用场景</a><br/><a href="/2026/06/11/anonymous-class/">3. 匿名内部类使用</a><br/><a href="/2026/06/11/reflection/">4. Java反射机制</a><br/><a href="/2026/06/11/file-copy/">5. 文件复制竞赛题</a><br/><a href="/2026/06/11/thread-creation/">6. 线程创建方式对比</a></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy; 2026 Java作业</span></div></div></footer></div><div id="rightside"><div id="rightside-config-show"><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5"></script><script src="/js/main.js?v=5.5.5"></script></div></body></html>

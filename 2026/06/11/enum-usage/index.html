@@ -1,0 +1,171 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>枚举类型应用场景 - Java作业</title><meta name="author" content="黄盛辉"><meta name="description" content="Java作业 - 枚举类型的三种应用场景详解"><link rel="shortcut icon" href="/img/favicon.png"><link rel="stylesheet" href="/css/index.css?v=5.5.5"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;500;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/css/custom.css"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/hero-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Java作业</span></a><a class="nav-page-title" href="/"><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span> 返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">二、枚举类型应用场景</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time datetime="2026-06-23">2026-06-23</time></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>枚举（Enum）是Java中的一种特殊类型，用于定义固定数量的常量集合。以下是枚举的三个常见应用场景：</p>
+
+<h2>场景1：状态/类型定义（最常用）</h2>
+
+<h3>应用场景</h3>
+<p>在实际项目中，经常需要定义一些固定的状态，如订单状态、用户状态、支付状态等。使用枚举可以避免魔法数字，提高代码可读性和维护性。</p>
+
+<h3>完整代码</h3>
+<pre><code class="language-java">/**
+ * 订单状态枚举
+ * 包含常见的订单生命周期状态
+ */
+public enum OrderStatus {
+    PENDING(&quot;待支付&quot;, &quot;用户已提交订单，等待支付&quot;),
+    PAID(&quot;已支付&quot;, &quot;用户已完成支付&quot;),
+    SHIPPED(&quot;已发货&quot;, &quot;商家已发货&quot;),
+    DELIVERED(&quot;已送达&quot;, &quot;订单已送达用户&quot;),
+    CANCELLED(&quot;已取消&quot;, &quot;订单已取消&quot;),
+    REFUNDED(&quot;已退款&quot;, &quot;订单已退款&quot;);
+    
+    private final String displayName;
+    private final String description;
+    
+    OrderStatus(String displayName, String description) {
+        this.displayName = displayName;
+        this.description = description;
+    }
+    
+    public String getDisplayName() { return displayName; }
+    public String getDescription() { return description; }
+    
+    public static OrderStatus fromDisplayName(String displayName) {
+        for (OrderStatus status : values()) {
+            if (status.displayName.equals(displayName)) {
+                return status;
+            }
+        }
+        return null;
+    }
+    
+    public static void main(String[] args) {
+        OrderStatus status = OrderStatus.PAID;
+        System.out.println(&quot;状态名称: &quot; + status.name());
+        System.out.println(&quot;显示名称: &quot; + status.getDisplayName());
+        System.out.println(&quot;状态描述: &quot; + status.getDescription());
+        
+        System.out.println(&quot;\n所有订单状态:&quot;);
+        for (OrderStatus s : OrderStatus.values()) {
+            System.out.println(s.ordinal() + &quot;. &quot; + s.name() + &quot; - &quot; + s.getDisplayName());
+        }
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>状态名称: PAID
+显示名称: 已支付
+状态描述: 用户已完成支付
+
+所有订单状态:
+0. PENDING - 待支付
+1. PAID - 已支付
+2. SHIPPED - 已发货
+3. DELIVERED - 已送达
+4. CANCELLED - 已取消
+5. REFUNDED - 已退款
+</code></pre>
+
+<h2>场景2：策略模式（替换大量if/else）</h2>
+
+<h3>应用场景</h3>
+<p>当需要根据不同条件执行不同算法时，可以使用枚举实现策略模式，避免冗长的if-else语句。</p>
+
+<h3>完整代码</h3>
+<pre><code class="language-java">/**
+ * 折扣策略枚举
+ * 使用枚举实现策略模式
+ */
+public enum DiscountStrategy {
+    STUDENT(&quot;学生折扣&quot;, &quot;适用于在校学生&quot;) {
+        @Override
+        public double applyDiscount(double price) {
+            return price * 0.8; // 学生8折
+        }
+    },
+    VIP(&quot;VIP折扣&quot;, &quot;适用于VIP会员&quot;) {
+        @Override
+        public double applyDiscount(double price) {
+            return price * 0.7; // VIP7折
+        }
+    },
+    MEMBER(&quot;会员折扣&quot;, &quot;适用于普通会员&quot;) {
+        @Override
+        public double applyDiscount(double price) {
+            return price * 0.85; // 会员85折
+        }
+    },
+    NORMAL(&quot;无折扣&quot;, &quot;适用于普通用户&quot;) {
+        @Override
+        public double applyDiscount(double price) {
+            return price;
+        }
+    };
+    
+    private final String strategyName;
+    private final String description;
+    
+    DiscountStrategy(String strategyName, String description) {
+        this.strategyName = strategyName;
+        this.description = description;
+    }
+    
+    public abstract double applyDiscount(double price);
+    
+    public String calculateFinalPrice(double price) {
+        double finalPrice = applyDiscount(price);
+        return String.format(&quot;原价: %.2f, 折扣后: %.2f, 节省: %.2f&quot;, 
+                           price, finalPrice, price - finalPrice);
+    }
+    
+    public static void main(String[] args) {
+        double originalPrice = 100.0;
+        for (DiscountStrategy strategy : DiscountStrategy.values()) {
+            System.out.println(&quot;\n--- &quot; + strategy.strategyName + &quot; ---&quot;);
+            System.out.println(strategy.calculateFinalPrice(originalPrice));
+        }
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>--- 学生折扣 ---
+原价: 100.00, 折扣后: 80.00, 节省: 20.00
+
+--- VIP折扣 ---
+原价: 100.00, 折扣后: 70.00, 节省: 30.00
+
+--- 会员折扣 ---
+原价: 100.00, 折扣后: 85.00, 节省: 15.00
+
+--- 无折扣 ---
+原价: 100.00, 折扣后: 100.00, 节省: 0.00
+</code></pre>
+
+<h2>场景3：统一返回码（后端接口必备）</h2>
+
+<h3>应用场景</h3>
+<p>在后端接口开发中，统一的返回码体系可以让前端更好地处理各种响应情况。</p>
+
+<h3>完整代码</h3>
+<pre><code class="language-java">public enum ResultCode {
+    SUCCESS(200, &quot;操作成功&quot;),
+    BAD_REQUEST(400, &quot;请求参数错误&quot;),
+    UNAUTHORIZED(401, &quot;未授权，请先登录&quot;),
+    FORBIDDEN(403, &quot;禁止访问，权限不足&quot;),
+    NOT_FOUND(404, &quot;资源未找到&quot;),
+    ERROR(500, &quot;服务器内部错误&quot;);
+    
+    private final int code;
+    private final String message;
+    
+    ResultCode(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+    
+    public int getCode() { return code; }
+    public String getMessage() { return message; }
+    public boolean isSuccess() { return this == SUCCESS; }
+}
+</code></pre></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="author-info-name">Java作业</div><div class="author-info-description">记录Java学习作业和代码示例</div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-list"></i><span>作业导航</span></div><div class="announcement_content"><a href="/2026/06/11/prime-numbers/">1. 素数判断</a><br/><a href="/2026/06/11/enum-usage/">2. 枚举类型应用场景</a><br/><a href="/2026/06/11/anonymous-class/">3. 匿名内部类使用</a><br/><a href="/2026/06/11/reflection/">4. Java反射机制</a><br/><a href="/2026/06/11/file-copy/">5. 文件复制竞赛题</a><br/><a href="/2026/06/11/thread-creation/">6. 线程创建方式对比</a></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy; 2026 Java作业</span></div></div></footer></div><div id="rightside"><div id="rightside-config-show"><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5"></script><script src="/js/main.js?v=5.5.5"></script></div></body></html>

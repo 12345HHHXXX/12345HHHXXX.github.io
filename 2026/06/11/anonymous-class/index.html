@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>匿名内部类使用 - Java作业</title><meta name="author" content="黄盛辉"><meta name="description" content="Java作业 - 匿名内部类的使用场景详解"><link rel="shortcut icon" href="/img/favicon.png"><link rel="stylesheet" href="/css/index.css?v=5.5.5"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;500;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/css/custom.css"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/hero-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Java作业</span></a><a class="nav-page-title" href="/"><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span> 返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">三、匿名内部类使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time datetime="2026-06-23">2026-06-23</time></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2>题目描述</h2>
+<p>使用匿名内部类实现一个简单的计时器工具，计算方法执行的耗时。</p>
+
+<h2>解题思路</h2>
+<ol>
+<li>定义一个函数式接口（只有一个抽象方法的接口）</li>
+<li>创建计时工具类，接收接口实现作为参数</li>
+<li>使用匿名内部类实现接口，传入具体的业务逻辑</li>
+</ol>
+
+<h2>完整代码</h2>
+<pre><code class="language-java">/**
+ * 计时器工具类
+ * 使用匿名内部类实现方法耗时统计
+ */
+public class TimerUtil {
+    
+    @FunctionalInterface
+    public interface Task {
+        void execute();
+    }
+    
+    @FunctionalInterface
+    public interface TaskWithResult&lt;T&gt; {
+        T execute();
+    }
+    
+    public static long measureTime(Task task) {
+        long startTime = System.currentTimeMillis();
+        try {
+            task.execute();
+        } catch (Exception e) {
+            System.err.println(&quot;任务执行异常: &quot; + e.getMessage());
+        }
+        return System.currentTimeMillis() - startTime;
+    }
+    
+    public static &lt;T&gt; TimedResult&lt;T&gt; measureTimeWithResult(TaskWithResult&lt;T&gt; task) {
+        long startTime = System.currentTimeMillis();
+        T result = null;
+        Exception exception = null;
+        try {
+            result = task.execute();
+        } catch (Exception e) {
+            exception = e;
+        }
+        return new TimedResult&lt;&gt;(result, System.currentTimeMillis() - startTime, exception);
+    }
+    
+    public static class TimedResult&lt;T&gt; {
+        private final T result;
+        private final long durationMs;
+        private final Exception exception;
+        
+        public TimedResult(T result, long durationMs, Exception exception) {
+            this.result = result;
+            this.durationMs = durationMs;
+            this.exception = exception;
+        }
+        
+        public T getResult() { return result; }
+        public long getDurationMs() { return durationMs; }
+        public boolean hasError() { return exception != null; }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(&quot;=== 测试1: 计算平方根耗时 ===&quot;);
+        long duration1 = TimerUtil.measureTime(new Task() {
+            @Override
+            public void execute() {
+                for (int i = 0; i &lt; 1000000; i++) {
+                    Math.sqrt(i);
+                }
+            }
+        });
+        System.out.println(&quot;执行耗时: &quot; + duration1 + &quot; 毫秒&quot;);
+        
+        System.out.println(&quot;\n=== 测试2: 带返回值的任务 ===&quot;);
+        TimedResult&lt;Integer&gt; result = TimerUtil.measureTimeWithResult(new TaskWithResult&lt;Integer&gt;() {
+            @Override
+            public Integer execute() {
+                int sum = 0;
+                for (int i = 1; i &lt;= 100; i++) sum += i;
+                return sum;
+            }
+        });
+        System.out.println(&quot;计算结果: &quot; + result.getResult());
+        System.out.println(&quot;执行耗时: &quot; + result.getDurationMs() + &quot; 毫秒&quot;);
+    }
+}
+</code></pre>
+
+<h2>运行结果</h2>
+<pre><code>=== 测试1: 计算平方根耗时 ===
+执行耗时: 12 毫秒
+
+=== 测试2: 带返回值的任务 ===
+计算结果: 5050
+执行耗时: 0 毫秒
+</code></pre>
+
+<h2>知识点总结</h2>
+<ul>
+<li><strong>匿名内部类</strong>：没有类名的内部类，用于一次性使用</li>
+<li><strong>函数式接口</strong>：只有一个抽象方法的接口，可以使用lambda表达式</li>
+<li><strong>@FunctionalInterface注解</strong>：标识该接口为函数式接口</li>
+</ul></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="author-info-name">Java作业</div><div class="author-info-description">记录Java学习作业和代码示例</div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-list"></i><span>作业导航</span></div><div class="announcement_content"><a href="/2026/06/11/prime-numbers/">1. 素数判断</a><br/><a href="/2026/06/11/enum-usage/">2. 枚举类型应用场景</a><br/><a href="/2026/06/11/anonymous-class/">3. 匿名内部类使用</a><br/><a href="/2026/06/11/reflection/">4. Java反射机制</a><br/><a href="/2026/06/11/file-copy/">5. 文件复制竞赛题</a><br/><a href="/2026/06/11/thread-creation/">6. 线程创建方式对比</a></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy; 2026 Java作业</span></div></div></footer></div><div id="rightside"><div id="rightside-config-show"><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5"></script><script src="/js/main.js?v=5.5.5"></script></div></body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>素数判断 - Java作业</title><meta name="author" content="黄盛辉"><meta name="description" content="Java作业 - 素数判断题目详解，包含解题思路、完整代码和运行结果"><link rel="shortcut icon" href="/img/favicon.png"><link rel="stylesheet" href="/css/index.css?v=5.5.5"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@300;400;500;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/css/custom.css"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/hero-bg.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Java作业</span></a><a class="nav-page-title" href="/"><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span> 返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">一、素数判断</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time datetime="2026-06-23">2026-06-23</time></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2>题目描述</h2>
+<p>编写一个Java程序，判断一个数是否为素数（质数）。</p>
+<p><strong>素数定义：</strong>一个大于1的自然数，除了1和它自身外，不能被其他自然数整除的数。</p>
+
+<h2>解题思路</h2>
+<ol>
+<li>若数字小于等于1，则不是素数</li>
+<li>若数字等于2，则是素数（唯一的偶素数）</li>
+<li>若数字是偶数且大于2，则不是素数</li>
+<li>从3开始，只检查奇数因子，直到sqrt(n)</li>
+</ol>
+
+<h2>完整代码</h2>
+<pre><code class="language-java">public class PrimeChecker {
+    
+    /**
+     * 判断一个数是否为素数
+     * @param n 待判断的整数
+     * @return 如果是素数返回true，否则返回false
+     */
+    public static boolean isPrime(int n) {
+        // 小于等于1的数不是素数
+        if (n &lt;= 1) return false;
+        // 2是唯一的偶素数
+        if (n == 2) return true;
+        // 偶数（除了2）不是素数
+        if (n % 2 == 0) return false;
+        // 从3开始，只检查奇数因子，优化到sqrt(n)
+        for (int i = 3; i * i &lt;= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+    
+    /**
+     * 打印指定范围内的所有素数
+     * @param start 起始数字
+     * @param end 结束数字
+     */
+    public static void printPrimes(int start, int end) {
+        System.out.println(start + &quot; 到 &quot; + end + &quot; 之间的素数：&quot;);
+        for (int i = start; i &lt;= end; i++) {
+            if (isPrime(i)) {
+                System.out.print(i + &quot; &quot;);
+            }
+        }
+        System.out.println();
+    }
+    
+    public static void main(String[] args) {
+        // 测试单个数字
+        int num = 29;
+        System.out.println(num + &quot; 是否为素数: &quot; + isPrime(num));
+        
+        // 测试边界值
+        System.out.println(&quot;0 是否为素数: &quot; + isPrime(0));
+        System.out.println(&quot;1 是否为素数: &quot; + isPrime(1));
+        System.out.println(&quot;2 是否为素数: &quot; + isPrime(2));
+        System.out.println(&quot;97 是否为素数: &quot; + isPrime(97));
+        
+        // 打印范围内的素数
+        printPrimes(1, 50);
+    }
+}
+</code></pre>
+
+<h2>运行结果</h2>
+<pre><code>29 是否为素数: true
+0 是否为素数: false
+1 是否为素数: false
+2 是否为素数: true
+97 是否为素数: true
+1 到 50 之间的素数：
+2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 
+</code></pre>
+
+<h2>知识点总结</h2>
+<ul>
+<li><strong>时间复杂度</strong>：O(√n)，只需要检查到平方根即可</li>
+<li><strong>空间复杂度</strong>：O(1)，只使用常数级别的额外空间</li>
+<li><strong>优化要点</strong>：跳过偶数检查，减少一半的迭代次数</li>
+</ul></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="author-info-name">Java作业</div><div class="author-info-description">记录Java学习作业和代码示例</div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-list"></i><span>作业导航</span></div><div class="announcement_content"><a href="/2026/06/11/prime-numbers/">1. 素数判断</a><br/><a href="/2026/06/11/enum-usage/">2. 枚举类型应用场景</a><br/><a href="/2026/06/11/anonymous-class/">3. 匿名内部类使用</a><br/><a href="/2026/06/11/reflection/">4. Java反射机制</a><br/><a href="/2026/06/11/file-copy/">5. 文件复制竞赛题</a><br/><a href="/2026/06/11/thread-creation/">6. 线程创建方式对比</a></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy; 2026 Java作业</span></div></div></footer></div><div id="rightside"><div id="rightside-config-show"><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5"></script><script src="/js/main.js?v=5.5.5"></script></div></body></html>
